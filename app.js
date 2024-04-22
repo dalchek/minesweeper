@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded",() => {
     let bombAmount = 20
     let squares = []
     let isGameOver = false
+    let flags = 0
 
 
     function createBoard(){
@@ -31,7 +32,7 @@ document.addEventListener("DOMContentLoaded",() => {
             
             
             // ctrl and left click
-            square.addEventListener('click',(e) => {
+            square.addEventListener('contextmenu',(e) => {
                 addFlag(square)
             })
         }
@@ -55,6 +56,26 @@ document.addEventListener("DOMContentLoaded",() => {
         }
     }
     createBoard()
+
+    // add flag with right click
+    function addFlag(square){
+        if (isGameOver) return
+        if (!square.classList.contains('checked') && (flags < bombAmount)) {
+            if (!square.classList.contains('flag')) {
+                square.classList.add('flag')
+                flags++
+                square.innerHTML = '🚩'
+                flagsLeft.innerHTML = bombAmount - flags
+                checkForWin()
+            } else {
+                square.classList.remove('flag')
+                flags--
+                square.innerHTML = ''
+                flagsLeft.innerHTML = bombAmount - flags
+            }
+
+        }
+    }
 
     function click(square) {
         console.log(square);
@@ -85,47 +106,61 @@ document.addEventListener("DOMContentLoaded",() => {
 
         setTimeout(() => {
             if(currentId > 0 && !isLeftEdge) {
-                const newId = squares[parseInt(currentId) - 1].id
+                const newId = parseInt(currentId) - 1
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
             if(currentId > 9 && !isRightEdge) {
-                const newId = squares[parseInt(currentId) + 1 - width].id
+                const newId = parseInt(currentId) + 1 - width
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
             if(currentId > 10) {
-                const newId = squares[parseInt(currentId) - width].id
+                const newId = parseInt(currentId) - width
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
             if(currentId > 11 && !isLeftEdge) {
-                const newId = squares[parseInt(currentId) -1 - width].id
+                const newId = parseInt(currentId) -1 - width
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
             if(currentId > 98 && !isLeftEdge) {
-                const newId = squares[parseInt(currentId) + 1].id
+                const newId = parseInt(currentId) + 1
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
             if(currentId < 90 && !isLeftEdge) {
-                const newId = squares[parseInt(currentId) - 1 + width].id
+                const newId = parseInt(currentId) - 1 + width
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
             if(currentId < 88 && !isRightEdge) {
-                const newId = squares[parseInt(currentId) + 1 + width].id
+                const newId = parseInt(currentId) + 1 + width
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
             if(currentId < 89) {
-                const newId = squares[parseInt(currentId) + width].id
+                const newId = parseInt(currentId) + width
                 const newSquare = document.getElementById(newId)
                 click(newSquare)
             }
         }, 10);
     }
+
+    function checkForWin() {
+        let matches = 0
+        for (let i = 0; i < squares.length; i++) {
+            if (squares[i].classList.contains('flag') && squares[i].classList.contains('bomb')) {
+                matches++
+            }
+            if (matches === bombAmount){
+                result.innerHTML = 'You win!'
+                isGameOver = true
+            }
+        }
+    }
+
     function gameOver() {
         result.innerHTML = 'BOOM! Game Over'
         isGameOver = true
